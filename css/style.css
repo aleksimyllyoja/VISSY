@@ -1,0 +1,55 @@
+* {
+  font-family: monospace !important;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #222;
+}
+
+#c {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+#vid {
+  display: none;
+}
+
+.dg.main {
+  background: rgba(0,0,0,0.5) !important;
+  width: 500px !important;
+  opacity: 0;
+}
+
+.dg.main:hover {
+  opacity: 1;
+}
+
+.dg.main .close-button.close-bottom {
+  background: rgba(0,0,0,0.5)
+}
+
+.dg * {
+  border-color: black !important;
+  background: transparent !important;
+  text-shadow: none;
+  color: white !important;
+  font-size: 1.1em;
+}
+
+.dg .c .slider-fg {
+  background: white !important;
+}
+
+.dg .c .slider {
+  border: 1px solid black;
+}
+
+.dg .c select {
+    margin-top: 1px;
+}

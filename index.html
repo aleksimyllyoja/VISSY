@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <script type="text/javascript" src="js/dat.gui.min.js"></script>
+    <script type="text/javascript" src="js/underscore-min.js"></script>
+    <script type="text/javascript" src="js/screenfull.min.js"></script>
+
+    <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
+
+    <link href="css/style.css" rel="stylesheet">
+
+    <title>VISSY</title>
+  </head>
+
+  <body>
+    <canvas class="canvas" id="c"></canvas>
+    <video id="vid" controls></video>
+  </body>
+
+  <script src="js/main.js"></script>
+  <script src="js/utils.js"></script>
+
+  <script>
+    var S = {
+      radius: 2,
+      rx: 8,
+      ry: 0,
+      precision: 39,
+      xphase: -1,
+      yphase: -4,
+      phase: 2,
+      lilyangle: 0,
+      step: 10,
+      swing: 0,
+      density: 5,
+      repeat_x: 1,
+      repeat_y: 1,
+    }
+
+    var TOGGLES = {};
+    var FS = {};
+    for(var key in S) {
+      TOGGLES[key] = false;
+      FS[key] = S[key];
+    }
+
+    TOGGLES.phase = true;
+
+    gui.add(S, 'radius', 2, 100).onChange(draw);
+    gui.add(S, 'rx', 0, 100).onChange(draw);
+    gui.add(S, 'ry', 0, 100).onChange(draw);
+    gui.add(S, 'precision', 2, 100, 1).onChange(draw);
+    gui.add(S, 'phase', -7, 7).onChange(draw);
+    gui.add(S, 'xphase', -7, 7).onChange(draw);
+    gui.add(S, 'yphase', -7, 7).onChange(draw);
+    gui.add(S, 'lilyangle', 0, 10).onChange(draw);
+    gui.add(S, 'swing', 0, 400).onChange(draw);
+    gui.add(S, 'step', 1, 400).onChange(draw);
+    gui.add(S, 'density', 2, 10).onChange(draw);
+
+    var t0 = (new Date()).getTime();
+
+    function choose_prop(obj) {
+        var keys = Object.keys(obj)
+        return keys[ keys.length * Math.random() << 0];
+    };
+
+    function lily(x, y) {
+      var flower_circle = circle(
+        x, y,
+        S.radius, S.precision,
+        S.phase*Math.PI*2, S.xphase, S.yphase, S.rx, S.ry
+      );
+
+      flower_circle = _.take(flower_circle, flower_circle.length-S.lilyangle);
+      flower_circle[0] = [x, y];
+      flower_circle[flower_circle.length-1] = [x, y];
+
+      return flower_circle;
+    }
+
+    function lilys() {
+
+      var flowers = [];
+      var lines = [];
+
+      BPM = 128;
+      BPMS = BPM/60.0/1000.0;
+
+      var t = (new Date()).getTime()-t0;
+
+      var bpm_osc = Math.sin(t*Math.PI*2*BPMS);
+      var bpm_osc4 = Math.sin(t*Math.PI*2*BPMS/4.0);
+      var bpm_osc8 = Math.sin(t*Math.PI*2*BPMS/8.0);
+      var bpm_osc16 = Math.sin(t*Math.PI*2*BPMS/16.0);
+      var bpm_osc32 = Math.sin(t*Math.PI*2*BPMS/32.0);
+
+      var bpm_osc128 = Math.sin(t*Math.PI*2*BPMS/128.0);
+
+
+      FS.phase = bpm_osc32;
+      FS.radius = 90*(2+bpm_osc32);
+      FS.precision = 5*(2+bpm_osc32);
+      FS.density = 8*(1+bpm_osc128);
+      FS.xphase = 80*(1+bpm_osc32);
+      FS.yphase = 80*(1+bpm_osc32);
+      FS.lilyangle = 10*(2+bpm_osc32);
+      FS.rx = 80*(1+bpm_osc8);
+      FS.ry = 80*(1+bpm_osc8);
+
+
+      if(Math.random() > 0.9999) {
+        S.repeat_x = Math.floor(Math.random()*6)+1;
+        S.repeat_y = Math.floor(Math.random()*6)+1;
+      }
+
+      for(var key in S) {
+        if(TOGGLES[key]) {
+          S[key] = FS[key];
+        }
+      }
+
+      if(Math.random() > 0.999) {
+        prop = choose_prop(S);
+        console.log("toggling ", prop)
+        TOGGLES[prop] = !TOGGLES[prop];
+
+      }
+
+      for(var i=5; i<H-5; i+=1) {
+
+        var d = (Math.sin(i))*S.swing;
+        lines.push([W/2+d, i]);
+        if(i%Math.floor(S.density) == 0) flowers.push(lily(W/2+d, i));
+
+      }
+
+      PSS = repeat(flowers, S.repeat_x, S.repeat_y);
+      return draw();
+    }
+
+    //lilys();
+
+    setInterval(lilys, 1);
+
+  </script>
+
+</html>
